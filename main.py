@@ -39,7 +39,8 @@ def get_tianixnweather():
     result = tianapi.read()
     data = result.decode('utf-8')
     dict_data = json.loads(data)
-    return dict_data
+    content = dict_data['now']['content']
+    return content
 
 
  
