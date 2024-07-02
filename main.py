@@ -5,7 +5,7 @@ from datetime import datetime, date
 from zhdate import ZhDate
 import sys
 import os
- 
+import http.client, urllib, json
  
 def get_color():
     # 获取随机颜色
@@ -24,12 +24,24 @@ def get_access_token():
     try:
         access_token = get(post_url).json()['access_token']
     except KeyError:
-        print("获取access_token失败，请检查app_id和app_secret是否正确")
+        print("获取access_token失败,请检查app_id和app_secret是否正确")
         os.system("pause")
         sys.exit(1)
     # print(access_token)
     return access_token
- 
+
+def get_tianixnweather():
+    conn = http.client.HTTPSConnection('apis.tianapi.com')  #接口域名
+    params = urllib.parse.urlencode({'key':'22b9cc8ee873cf6b6cc8038628057af1','city':'湖州市','type':'1'})
+    headers = {'Content-type':'application/x-www-form-urlencoded'}
+    conn.request('POST','/tianqi/index',params,headers)
+    tianapi = conn.getresponse()
+    result = tianapi.read()
+    data = result.decode('utf-8')
+    dict_data = json.loads(data)
+    return dict_data
+
+
  
 def get_weather(region):
     headers = {
@@ -60,7 +72,8 @@ def get_weather(region):
     wind_dir = response["now"]["windDir"]
     return weather, temp, wind_dir
  
- 
+
+
 def get_birthday(birthday, year, today):
     birthday_year = birthday.split("-")[0]
     # 判断是否为农历生日
@@ -222,6 +235,7 @@ if __name__ == "__main__":
     # 传入地区获取天气信息
     region = config["region"]
     weather, temp, wind_dir = get_weather(region)
+    tianxinwe = get_tianixnweather()
     note_ch = config["note_ch"]
     note_en = config["note_en"]
     if note_ch == "" and note_en == "":
@@ -229,5 +243,5 @@ if __name__ == "__main__":
         note_ch, note_en = get_ciba()
     # 公众号推送消息
     for user in users:
-        send_message(user, accessToken, region, weather, temp, wind_dir, note_ch, note_en)
+        send_message(user, accessToken, region, weather, temp, wind_dir, note_ch, note_en, tianxinwe)
     os.system("pause")
