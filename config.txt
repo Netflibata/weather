@@ -22,4 +22,5 @@
 "note_ch": "",
 # 金句英文
 "note_en": ""
+"tianxinwe"
 }
